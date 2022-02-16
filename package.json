@@ -1,0 +1,33 @@
+{
+  "name": "room-reservation-express",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon src/main.js",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sannet0/room-reservation-express.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Sannet0/room-reservation-express/issues"
+  },
+  "homepage": "https://github.com/Sannet0/room-reservation-express#readme",
+  "dependencies": {
+    "@jest/globals": "^27.5.1",
+    "express": "^4.17.2",
+    "jest": "^27.5.1",
+    "nodemon": "^2.0.15",
+    "pg": "^8.7.3",
+    "supertest": "^6.2.2"
+  },
+  "devDependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.0"
+  }
+}
