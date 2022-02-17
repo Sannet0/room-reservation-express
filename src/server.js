@@ -7,7 +7,11 @@ require('dotenv').config()
 const roomsRouts = require('./routes/rooms.routes');
 const bookingRouts = require('./routes/booking-records.routes');
 
-app.use(cors());
+app.use(cors({
+  origin: '*',
+  methods: 'GET, POST',
+  optionsSuccessStatus: 200
+}));
 app.use(express.json());
 
 app.use('/rooms', roomsRouts);

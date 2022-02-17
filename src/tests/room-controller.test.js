@@ -14,13 +14,12 @@ jest.mock('../modules/database.module', () => ({
 
 const res = {
   text: '',
-  status: 200,
-  send: (input) => {
-    res.text = input;
-
+  statusCode: 200,
+  status: (status) => {
+    res.statusCode = status;
     return {
-      status: (status) => {
-        res.status = status;
+      send: (input) => {
+        res.text = input;
       }
     }
   }
@@ -36,7 +35,7 @@ describe('nonOccupiedRooms', () => {
     };
 
     res.text = '';
-    res.status = 200;
+    res.statusCode = 200;
 
     await nonOccupiedRooms(req, res);
 

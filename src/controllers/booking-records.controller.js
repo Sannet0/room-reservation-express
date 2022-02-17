@@ -7,12 +7,11 @@ const bookingRoom = async (req, res) => {
     const checkoutDate = new Date(data.checkout_date);
 
     if(checkinDate >= checkoutDate) {
-      return res.send('check-in date cannot be greater or equal than check-out date').status(400);
+      return res.status(400).send('check-in date cannot be greater or equal than check-out date');
     }
 
     if(checkinDate.getDay() === 1 || checkinDate.getDay() === 4 || checkoutDate.getDay() === 1 || checkoutDate.getDay() === 4) {
-      res.send('check-in and check-out date cannot be monday or thursday').status(400);
-      return;
+      return res.status(400).send('check-in and check-out date cannot be monday or thursday');
     }
 
     const daysDifference = Math.floor((checkoutDate - checkinDate) / (1000 * 60 * 60 * 24));
@@ -25,9 +24,8 @@ const bookingRoom = async (req, res) => {
       values: [data.room_number],
     }
     const rooms = await db.query(roomsQuery);
-    if(rooms.rows.length === 0) {
-      res.send('no such room').status(404);
-      return;
+    if(!rooms.rows.length) {
+      return res.status(404).send('no such room');
     }
 
     const actualRoom = rooms.rows[0];
@@ -37,16 +35,18 @@ const bookingRoom = async (req, res) => {
     }
     const occupiedRooms = await db.query(occupiedRoomsQuery);
 
-    if(occupiedRooms.rows.length !== 0) {
-      return res.send('room occupied').status(500);
+    if(occupiedRooms.rows.length) {
+      return res.status(500).send('room occupied');
     }
 
-    let totalPrice = daysDifference * actualRoom.price;
+    let totalPrice;
 
-    if(actualRoom.price >= 10) {
+    if(daysDifference >= 10  && daysDifference < 20) {
       totalPrice = daysDifference * (actualRoom.price - (actualRoom.price * 0.1))
-    } else if(actualRoom.price >= 20) {
+    } else if(daysDifference >= 20) {
       totalPrice = daysDifference * (actualRoom.price - (actualRoom.price * 0.2));
+    } else {
+      totalPrice = daysDifference * actualRoom.price;
     }
 
     const bookingRoomInsertQuery = {
@@ -55,9 +55,11 @@ const bookingRoom = async (req, res) => {
     }
     await db.query(bookingRoomInsertQuery);
 
-    res.send('room reserved successfully').status(201);
-  } catch (e) {
-    res.send(e).status(500);
+    return res.status(201).send({ totalPrice });
+  } catch (err) {
+    return res.status(500).send({
+      error: JSON.stringify(err)
+    });
   }
 }
 
@@ -84,9 +86,11 @@ const averageRoomsLoadReport = async (req, res) => {
     }
     const result = await db.query(resultQuery);
 
-    return res.send(result.rows);
-  } catch (e) {
-    return res.send(e).status(500);
+    return res.status(200).send(result.rows);
+  } catch (err) {
+    return res.status(500).send({
+      error: JSON.stringify(err)
+    });
   }
 }
 

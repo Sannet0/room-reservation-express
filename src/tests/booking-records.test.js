@@ -39,13 +39,12 @@ jest.mock('../modules/database.module', () => ({
 
 const res = {
   text: '',
-  status: 200,
-  send: (input) => {
-    res.text = input;
-
+  statusCode: 200,
+  status: (status) => {
+    res.statusCode = status;
     return {
-      status: (status) => {
-        res.status = status;
+      send: (input) => {
+        res.text = input;
       }
     }
   }
@@ -62,12 +61,12 @@ describe('bookingRoom', () => {
     };
 
     res.text = '';
-    res.status = 200;
+    res.statusCode = 200;
 
     await bookingRoom(req, res);
 
-    expect(res.text).toEqual('room reserved successfully');
-    expect(res.status).toEqual(201);
+    expect(res.text).toEqual({ totalPrice: 22400 });
+    expect(res.statusCode).toEqual(201);
   })
   it('should return an http exception with status code 502 and message "check-in date cannot be greater or equal than check-out date"', async () => {
     const req = {
@@ -79,12 +78,12 @@ describe('bookingRoom', () => {
     };
 
     res.text = '';
-    res.status = 200;
+    res.statusCode = 200;
 
     await bookingRoom(req, res);
 
     expect(res.text).toEqual('check-in date cannot be greater or equal than check-out date');
-    expect(res.status).toEqual(400);
+    expect(res.statusCode).toEqual(400);
   })
   it('should return an http exception with status code 502 and message "check-in and check-out date cannot be monday or thursday"', async () => {
     const req = {
@@ -96,12 +95,12 @@ describe('bookingRoom', () => {
     };
 
     res.text = '';
-    res.status = 200;
+    res.statusCode = 200;
 
     await bookingRoom(req, res);
 
     expect(res.text).toEqual('check-in and check-out date cannot be monday or thursday');
-    expect(res.status).toEqual(400);
+    expect(res.statusCode).toEqual(400);
   })
   it('should return an http exception with status code 404 and message "no such room"', async () => {
     const req = {
@@ -113,12 +112,12 @@ describe('bookingRoom', () => {
     };
 
     res.text = '';
-    res.status = 200;
+    res.statusCode = 200;
 
     await bookingRoom(req, res);
 
     expect(res.text).toEqual('no such room');
-    expect(res.status).toEqual(404);
+    expect(res.statusCode).toEqual(404);
   })
   it('should return an http exception with status code 404 and message "room occupied"', async () => {
     const req = {
@@ -130,12 +129,12 @@ describe('bookingRoom', () => {
     };
 
     res.text = '';
-    res.status = 200;
+    res.statusCode = 200;
 
     await bookingRoom(req, res);
 
     expect(res.text).toEqual('room occupied');
-    expect(res.status).toEqual(500);
+    expect(res.statusCode).toEqual(500);
   })
 });
 
@@ -150,7 +149,7 @@ describe('averageRoomsLoadReport',  () => {
     };
 
     res.text = '';
-    res.status = 200;
+    res.statusCode = 200;
 
     await averageRoomsLoadReport(req, res);
 

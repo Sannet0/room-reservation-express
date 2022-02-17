@@ -21,9 +21,11 @@ const nonOccupiedRooms = async (req, res) => {
     }
     const result = await db.query(resultQuery);
 
-    res.send(result.rows);
-  } catch (e) {
-    res.send(e).status(500);
+    return res.status(200).send(result.rows);
+  } catch (err) {
+    return res.status(500).send({
+      error: JSON.stringify(err)
+    });
   }
 }
 
