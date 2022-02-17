@@ -1,64 +1,41 @@
 const { bookingRoom, averageRoomsLoadReport } = require('../controllers/booking-records.controller');
 jest.mock('../modules/database.module', () => ({
   query: (query) => {
-    const replacedQuery = query.replace(/[^a-z0-9]/gi,'').replace(/\s+/gi,', ');
-    if(replacedQuery === 'SELECTFROMroomsWHEREroomnumber19') {
-      return {
-        rows: [
-          {
-            room_number: 19,
-            price: 1000
-          }
-        ]
+    const replacedQuery = query.text.replace(/\s+/gi,'');
+    const stringValues = query.values.toString();
+
+    if(replacedQuery === 'SELECTto_char(booking_records.checkin_date,\'month\')ASrecord_month,booking_records.room_number,round(avg(abs(extract(dayfrombooking_records.checkin_date::timestamp-booking_records.checkout_date::timestamp))))ASaverageFROMbooking_recordsWHERE($1<booking_records.checkout_date)AND($2>booking_records.checkin_date)GROUPBYrecord_month,booking_records.room_numberORDERBYrecord_month,booking_records.room_number') {
+      if(stringValues === '2022-4-3,2022-5-1') {
+        return {
+          rows: [
+            { record_month: "april    ", room_number: 2, average: "6" },
+            { record_month: "april    ", room_number: 3, average: "6" }
+          ]
+        };
       }
     }
-    if(replacedQuery === 'SELECTFROMroomsWHEREroomnumber1') {
-      return {
-        rows: []
+    if(replacedQuery === 'SELECT*FROMroomsWHEREroom_number=$1') {
+      if(stringValues === '1') {
+        return { rows: [] };
+      }
+      if(stringValues === '19') {
+        return { rows: [{ room_number: 19, price: 1000 }] };
       }
     }
-    if(replacedQuery === 'SELECTbookingrecordsroomnumberFROMbookingrecordsWHERE202141bookingrecordscheckoutdateAND202151bookingrecordscheckindateANDroomnumber1LIMIT1') {
-      return {
-        rows: []
+    if(replacedQuery === 'SELECTbooking_records.room_numberFROMbooking_recordsWHERE($1<booking_records.checkout_date)AND($2>booking_records.checkin_date)ANDroom_number=$3LIMIT1') {
+      if(stringValues === '2022-9-2,2022-9-9,19') {
+        return { rows: [{ room_number: 19 }] }
+      }
+      if(stringValues === '2022-4-3,2022-5-1,19') {
+        return { rows: [] }
       }
     }
-    if(replacedQuery === 'SELECTbookingrecordsroomnumberFROMbookingrecordsWHERE202292bookingrecordscheckoutdateAND202299bookingrecordscheckindateANDroomnumber19LIMIT1') {
-      return {
-        rows: [
-          {
-            room_number: 19
-          }
-        ]
+    if(replacedQuery === 'INSERTINTObooking_records("room_number","checkin_date","checkout_date","total_price")VALUES($1,$2,$3,$4)') {
+      if(stringValues === '19,2022-4-3,2022-5-1,') {
+        return { rows: [] }
       }
     }
-    if(replacedQuery === 'INSERTINTObookingrecordsroomnumbercheckindatecheckoutdateVALUES19202243202251') {
-      return {
-        rows: []
-      }
-    }
-    if(replacedQuery === 'SELECTbookingrecordsroomnumberFROMbookingrecordsWHERE202243bookingrecordscheckoutdateAND202251bookingrecordscheckindateANDroomnumber19LIMIT1') {
-      return {
-        rows: []
-      }
-    }
-    if(replacedQuery === 'SELECTtocharbookingrecordscheckindatemonthASrecordmonthbookingrecordsroomnumberroundavgabsextractdayfrombookingrecordscheckindatetimestampbookingrecordscheckoutdatetimestampASaverageFROMbookingrecordsWHERE202243bookingrecordscheckoutdateAND202251bookingrecordscheckindateGROUPBYrecordmonthbookingrecordsroomnumberORDERBYrecordmonthbookingrecordsroomnumber') {
-      return {
-        rows: [
-          {
-            record_month: "april    ",
-            room_number: 2,
-            average: "6"
-          },
-          {
-            record_month: "april    ",
-            room_number: 3,
-            average: "6"
-          }
-        ]
-      }
-    }
-  }
-}));
+  }}));
 
 const res = {
   text: '',
@@ -107,7 +84,7 @@ describe('bookingRoom', () => {
     await bookingRoom(req, res);
 
     expect(res.text).toEqual('check-in date cannot be greater or equal than check-out date');
-    expect(res.status).toEqual(502);
+    expect(res.status).toEqual(400);
   })
   it('should return an http exception with status code 502 and message "check-in and check-out date cannot be monday or thursday"', async () => {
     const req = {
@@ -124,7 +101,7 @@ describe('bookingRoom', () => {
     await bookingRoom(req, res);
 
     expect(res.text).toEqual('check-in and check-out date cannot be monday or thursday');
-    expect(res.status).toEqual(502);
+    expect(res.status).toEqual(400);
   })
   it('should return an http exception with status code 404 and message "no such room"', async () => {
     const req = {
@@ -158,7 +135,7 @@ describe('bookingRoom', () => {
     await bookingRoom(req, res);
 
     expect(res.text).toEqual('room occupied');
-    expect(res.status).toEqual(502);
+    expect(res.status).toEqual(500);
   })
 });
 
