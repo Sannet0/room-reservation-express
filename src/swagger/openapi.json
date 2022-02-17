@@ -1,0 +1,193 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/rooms/non-occupied-rooms": {
+      "get": {
+        "operationId": "RoomsController_nonOccupiedRooms",
+        "summary": "Average rooms load report",
+        "parameters": [
+          {
+            "example": "2022-07-03",
+            "description": "",
+            "name": "checkin_date",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "example": "2022-07-10",
+            "description": "",
+            "name": "checkout_date",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NonOccupiedRoomsResponseEntity"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/booking-records": {
+      "post": {
+        "operationId": "BookingRecordsController_bookingRoom",
+        "summary": "Booking room",
+        "parameters": [
+          {
+            "example": 2,
+            "name": "room_number",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "example": "2022-07-03",
+            "name": "checkin_date",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "example": "2022-07-10",
+            "name": "checkout_date",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "room reserved successfully"
+          },
+          "404": {
+            "description": "no such room"
+          },
+          "502": {
+            "description": "\"check-in date cannot be greater or equal than check-out date \" or \"check-in and check-out date cannot be monday or thursday\" or \"room occupied\""
+          }
+        },
+        "tags": [
+          "booking records"
+        ]
+      }
+    },
+    "/booking-records/report/average-rooms-load": {
+      "get": {
+        "operationId": "BookingRecordsController_averageRoomsLoadReport",
+        "summary": "Average rooms load report",
+        "parameters": [
+          {
+            "example": "2022-07-03",
+            "description": "",
+            "name": "checkin_date",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "example": "2022-07-10",
+            "description": "",
+            "name": "checkout_date",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AverageRoomsLoadResponseEntity"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "booking records"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Room reservation",
+    "description": "The room reservation API description",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "schemas": {
+      "NonOccupiedRoomsResponseEntity": {
+        "type": "object",
+        "properties": {
+          "room_number": {
+            "type": "number",
+            "example": 2,
+            "description": ""
+          }
+        },
+        "required": [
+          "room_number"
+        ]
+      },
+      "AverageRoomsLoadResponseEntity": {
+        "type": "object",
+        "properties": {
+          "record_month": {
+            "type": "string",
+            "example": "july     ",
+            "description": ""
+          },
+          "room_number": {
+            "type": "number",
+            "example": 4,
+            "description": ""
+          },
+          "average": {
+            "type": "string",
+            "example": "1",
+            "description": ""
+          }
+        },
+        "required": [
+          "record_month",
+          "room_number",
+          "average"
+        ]
+      }
+    }
+  }
+}
